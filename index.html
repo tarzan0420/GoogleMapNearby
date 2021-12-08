@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>+Luis Alba's Demo Project+</title>
+    <title>Sushi Finder</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <meta charset="utf-8" />
 
@@ -40,6 +40,8 @@
             background-color: white;
         }
         h1 {
+            font-family: Century Gothic,sans-serif;
+            font-weight: 800;
             font-size: 60px;
             margin-bottom: 20px;
             text-transform: lowercase;
@@ -161,6 +163,7 @@
          * Replace the code from here to the END TODO comment with this code
          * from codelab instructions. */
         let bounds;
+        let geocoder;
         let infoWindow;
         let currentInfoWindow;
         let service;
@@ -353,6 +356,7 @@
             // Initialize variables
             bounds = new google.maps.LatLngBounds();
             infoWindow = new google.maps.InfoWindow();
+            geocoder = new google.maps.Geocoder();
             currentInfoWindow = infoWindow;
             /* TODO: Step 4A3: Add a generic sidebar */
 
@@ -368,13 +372,40 @@
                             center: pos,
                             zoom: 15,
                         });
-                        bounds.extend(pos);
+                        bounds.extend(pos);                        
 
-                        infoWindow.setPosition(pos);
-                        infoWindow.setContent("Location found.");
-                        infoWindow.open(map);
+                        geocoder
+                            .geocode({ location: pos })
+                            .then((response) => {
+                            if (response.results[0]) {
+                                map.setZoom(11);
+
+                                const marker = new google.maps.Marker({
+                                    position: pos,
+                                    map: map                                    
+                                });
+                                infoWindow.setPosition(pos); 
+                                infoWindow.setContent(response.results[0].formatted_address);                                
+                                infoWindow.open(map, marker);
+                                marker.addListener("mousedown",()=>
+                                {
+                                    infoWindow.setContent(response.results[0].formatted_address);
+                                    infoWindow.open({
+                                        anchor: marker,
+                                        map,
+                                        shouldFocus: false,
+                                    });
+
+                                })
+                            } else {
+                                window.alert("No results found");
+                            }
+                            })
+                            .catch((e) => window.alert("Geocoder failed due to: " + e));
+                        
                         map.setCenter(pos);
                         map.setOptions({ styles: styles["default"] });
+                        
 
                         /* TODO: Step 3B2, Call the Places Nearby Search */
                     },
@@ -458,7 +489,8 @@
                 });
                 
                 console.log(iconBase + currentClick + ".png");
-                markers.push(marker);
+                if (markers !== undefined)
+                    markers.push(marker);
 
                 //console.log(marker);
 
@@ -541,6 +573,7 @@
         function deleteMarker(dataId)
         {
             markers = hint[dataId];
+            if(markers === undefined) return
             for(i=0; i<markers.length; i++){
                 markers[i].setMap(null);
             }
