@@ -16,13 +16,13 @@
         <div class="button-section ">
             <h1>around the area</h1>
             <div class="button-body">
-                <button id="food" class="col-md-5 button" data-id="food" data-clicked="false">food & grocery</button>
-                <button id="shopping" class="col-md-5 button" data-id="shopping" data-clicked="false">shopping</button>
-                <button id="schools" class="col-md-5 button" data-id="schools" data-clicked="false">schools</button>
-                <button id="parks" class="col-md-5 button" data-id="parks" data-clicked="false">parks & rec</button>
-                <button id="hospitals" class="col-md-5 button" data-id="hospitals" data-clicked="false">hospitals</button>
-                <button id="stadiums" class="col-md-5 button" data-id="stadiums" data-clicked="false">stadiums</button>
-                <button id="movies" class="col-md-5 button" data-id="movies" data-clicked="false">movies</button>
+                <button onclick="clinch('food')" id="food" class="col-md-5 button" data-id="food" data-clicked="false">food & grocery</button>
+                <button onclick="clinch('shopping')" id="shopping" class="col-md-5 button" data-id="shopping" data-clicked="false">shopping</button>
+                <button onclick="clinch('schools')" id="schools" class="col-md-5 button" data-id="schools" data-clicked="false">schools</button>
+                <button onclick="clinch('parks')" id="parks" class="col-md-5 button" data-id="parks" data-clicked="false">parks & rec</button>
+                <button onclick="clinch('hospitals')" id="hospitals" class="col-md-5 button" data-id="hospitals" data-clicked="false">hospitals</button>
+                <button onclick="clinch('stadiums')" id="stadiums" class="col-md-5 button" data-id="stadiums" data-clicked="false">stadiums</button>
+                <button onclick="clinch('movies')" id="movies" class="col-md-5 button" data-id="movies" data-clicked="false">movies</button>
             </div>
         </div>
         <div class="map-container ">
@@ -34,6 +34,11 @@
 
 
     <style>
+        body{
+            border: none;
+            padding:0;
+            background-color: white;
+        }
         h1 {
             font-size: 60px;
             margin-bottom: 20px;
@@ -48,10 +53,16 @@
         .button{
             transition-duration:0.3s;
             background-color: #007279;
+            
         }
 
         .button:not(.no-hover):hover{
             background-color: #339b9b
+        }
+
+        .button:focus{
+            border: none;
+            outline: none;
         }
         
         .active{
@@ -158,6 +169,186 @@
         let hint = {};
         var iconBase = './resource/';
 
+        const styles = {
+            default: [
+    {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#e9e9e9"
+            },
+            {
+                "lightness": 17
+            }
+        ]
+    },
+    {
+        "featureType": "landscape",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#f5f5f5"
+            },
+            {
+                "lightness": 20
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry.fill",
+        "stylers": [
+            {
+                "color": "#ffffff"
+            },
+            {
+                "lightness": 17
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            {
+                "color": "#ffffff"
+            },
+            {
+                "lightness": 29
+            },
+            {
+                "weight": 0.2
+            }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#ffffff"
+            },
+            {
+                "lightness": 18
+            }
+        ]
+    },
+    {
+        "featureType": "road.local",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#ffffff"
+            },
+            {
+                "lightness": 16
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#f5f5f5"
+            },
+            {
+                "lightness": 21
+            }
+        ]
+    },
+    {
+        "featureType": "poi.park",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#dedede"
+            },
+            {
+                "lightness": 21
+            }
+        ]
+    },
+    {
+        "elementType": "labels.text.stroke",
+        "stylers": [
+            {
+                "visibility": "on"
+            },
+            {
+                "color": "#ffffff"
+            },
+            {
+                "lightness": 16
+            }
+        ]
+    },
+    {
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "saturation": 36
+            },
+            {
+                "color": "#333333"
+            },
+            {
+                "lightness": 40
+            }
+        ]
+    },
+    {
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "color": "#f2f2f2"
+            },
+            {
+                "lightness": 19
+            }
+        ]
+    },
+    {
+        "featureType": "administrative",
+        "elementType": "geometry.fill",
+        "stylers": [
+            {
+                "color": "#fefefe"
+            },
+            {
+                "lightness": 20
+            }
+        ]
+    },
+    {
+        "featureType": "administrative",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            {
+                "color": "#fefefe"
+            },
+            {
+                "lightness": 17
+            },
+            {
+                "weight": 1.2
+            }
+        ]
+    }
+]
+
+        };
+
         function initMap() {
             // Initialize variables
             bounds = new google.maps.LatLngBounds();
@@ -183,6 +374,7 @@
                         infoWindow.setContent("Location found.");
                         infoWindow.open(map);
                         map.setCenter(pos);
+                        map.setOptions({ styles: styles["default"] });
 
                         /* TODO: Step 3B2, Call the Places Nearby Search */
                     },
@@ -372,26 +564,24 @@
     <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCpkTr7ZcR6l1n3O7-70l7lchO5vjz2UhY&libraries=places&callback=initMap">
     </script>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-        $(document).ready(function(){
-            $("button").on("click", function(){
-                var dataId = $(this).attr("id");
-                if ($(this).attr("data-clicked") == "false")
+        function clinch(id) {
+            var dataId = id;
+                if (document.getElementById(dataId).dataset.clicked == "false")
                 {
-                    $(this).attr("data-clicked", true);
+                    document.getElementById(dataId).setAttribute("data-clicked", true);
                     document.getElementById(dataId).classList.add("active");
-                    $(this).addClass('no-hover');
+                    document.getElementById(dataId).classList.add('no-hover');
                     getNearbyPlaces(pos, dataId);
                 }else 
                 {
-                    $(this).attr("data-clicked", false);
+                    document.getElementById(dataId).setAttribute("data-clicked", false);
                     document.getElementById(dataId).classList.remove("active");
-                    $(this).removeClass('no-hover');
+                    document.getElementById(dataId).classList.remove('no-hover');
                     clearNearbyPlaces(dataId);
                 }
-            });
-        });
+        }
+
     </script>
     >
 </body>
