@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Sushi Finder</title>
+    <title>+Luis Alba Demo+</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <meta charset="utf-8" />
 
@@ -142,6 +142,9 @@
             .main-body{
                 height: 100%;
             }
+        }
+        .gm-style-iw, button:focus {
+            outline: 0;
         }
 
     </style>
@@ -355,12 +358,13 @@
         function initMap() {
             // Initialize variables
             bounds = new google.maps.LatLngBounds();
-            infoWindow = new google.maps.InfoWindow();
+            infoWindow = new google.maps.InfoWindow();            
             geocoder = new google.maps.Geocoder();
-            currentInfoWindow = infoWindow;
+            // currentInfoWindow = infoWindow;
             /* TODO: Step 4A3: Add a generic sidebar */
 
             // Try HTML5 geolocation
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -372,42 +376,43 @@
                             center: pos,
                             zoom: 15,
                         });
-                        bounds.extend(pos);                        
-
+                        bounds.extend(pos);
+                        map.setCenter(pos);
+                        map.setOptions({ styles: styles["default"] });
                         geocoder
                             .geocode({ location: pos })
                             .then((response) => {
                             if (response.results[0]) {
-                                map.setZoom(11);
-
-                                const marker = new google.maps.Marker({
+                                map.setZoom(12);
+                                var iconBase = window.location.href + 'resource/map-marker-alt.svg';
+                                const marker = new google.maps.Marker({                                    
+                                    icon:iconBase,
                                     position: pos,
-                                    map: map                                    
+                                    map: map                                
                                 });
+                                /* TODO: Step 3B2, Call the Places Nearby Search */                                
                                 infoWindow.setPosition(pos); 
-                                infoWindow.setContent(response.results[0].formatted_address);                                
+                                infoWindow.setContent(
+                                    "<div><h6>" +
+                                    response.results[0].formatted_address+
+                                    "</h6>" +                    
+                                    "</div>"
+                                );
                                 infoWindow.open(map, marker);
-                                marker.addListener("mousedown",()=>
+                                marker.addListener("mouseover",()=>
                                 {
-                                    infoWindow.setContent(response.results[0].formatted_address);
-                                    infoWindow.open({
-                                        anchor: marker,
-                                        map,
-                                        shouldFocus: false,
-                                    });
-
+                                    infoWindow.close();
+                                    infoWindow.open(map,marker);                                    
                                 })
+
+                                
                             } else {
                                 window.alert("No results found");
                             }
                             })
                             .catch((e) => window.alert("Geocoder failed due to: " + e));
-                        
-                        map.setCenter(pos);
-                        map.setOptions({ styles: styles["default"] });
-                        
 
-                        /* TODO: Step 3B2, Call the Places Nearby Search */
+                        
                     },
                     () => {
                         // Browser supports geolocation, but user has denied permission
@@ -418,6 +423,7 @@
                 // Browser doesn't support geolocation
                 handleLocationError(false, infoWindow);
             }
+            
         }
 
         // Handle a geolocation error
@@ -480,23 +486,20 @@
                     map: map,
                     icon: {
                         url: iconBase + currentClick + ".png",
-                        size: {
-                            width: 40,
-                            height: 40
-                        }
+                        scaledSize: new google.maps.Size(24, 24),
+                        origin: new google.maps.Point(0,0), // origin
+                        anchor: new google.maps.Point(0, 0) // anchor                        
                     },
                     title: place.name,
-                });
+                });                
                 
                 console.log(iconBase + currentClick + ".png");
                 if (markers !== undefined)
                     markers.push(marker);
 
-                //console.log(marker);
-
                 /* TODO: Step 4B: Add click listeners to the markers */
                 // Add click listener to each marker
-                google.maps.event.addListener(marker, "click", () => {
+                google.maps.event.addListener(marker, "mouseover", () => {
                     let request = {
                         placeId: place.place_id,
                         fields: [
@@ -533,15 +536,15 @@
             if (status == google.maps.places.PlacesServiceStatus.OK) {
                 let placeInfowindow = new google.maps.InfoWindow();
                 placeInfowindow.setContent(
-                    "<div><strong>" +
+                    "<div><h6>" +
                     placeResult.name +
-                    "</strong><br>" +
-                    "Rating: " +
-                    placeResult.rating +
+                    "</h6>" +                    
                     "</div>"
                 );
+                
                 placeInfowindow.open(marker.map, marker);
-                currentInfoWindow.close();
+                if(currentInfoWindow !== undefined)
+                    currentInfoWindow.close();
                 currentInfoWindow = placeInfowindow;
             } else {
                 console.log("showDetails failed: " + status);
